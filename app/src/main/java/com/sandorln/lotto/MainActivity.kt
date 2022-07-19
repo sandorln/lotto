@@ -56,9 +56,11 @@ class MainActivity : ComponentActivity() {
                         }
                         if (lottoState.hasNextLottoPrizeList)
                             item {
-                                Box(modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(20.dp), contentAlignment = Alignment.Center) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(20.dp), contentAlignment = Alignment.Center
+                                ) {
                                     CircularProgressIndicator(modifier = Modifier.size(40.dp))
                                 }
                             }
