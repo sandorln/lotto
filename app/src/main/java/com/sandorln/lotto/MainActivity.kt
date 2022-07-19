@@ -3,28 +3,31 @@ package com.sandorln.lotto
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.activity.viewModels
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.sandorln.lotto.data.model.LottoPrize
-import com.sandorln.lotto.data.repository.LottoRepository
 import com.sandorln.lotto.ui.theme.LottoTheme
+import com.sandorln.lotto.util.OnBottomReached
+import com.sandorln.lotto.viewmodel.LottoEvent
+import com.sandorln.lotto.viewmodel.LottoState
+import com.sandorln.lotto.viewmodel.LottoViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import javax.inject.Inject
+import kotlinx.coroutines.flow.collectLatest
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    @Inject
-    lateinit var lottoRepository: LottoRepository
+    val lottoViewModel: LottoViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,20 +35,33 @@ class MainActivity : ComponentActivity() {
             LottoTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colors.background) {
-                    var result by remember { mutableStateOf<MutableList<LottoPrize>>(mutableListOf()) }
+                    var lottoState by remember { mutableStateOf(LottoState()) }
+                    val listState = rememberLazyListState()
 
                     LaunchedEffect(Unit) {
-                        withContext(Dispatchers.IO) {
-                            val temp = result.toMutableList()
-                            temp.addAll(lottoRepository.getNextLottoPrizeNumList(0))
-                            result = temp
-                        }
+                        lottoViewModel
+                            .lottoState
+                            .collectLatest {
+                                lottoState = it
+                            }
                     }
 
-                    LazyColumn(modifier = Modifier.fillMaxSize()) {
-                        items(items = result) {
+                    listState.OnBottomReached {
+                        lottoViewModel.postEvent(LottoEvent.GetNextLottoPrizeList)
+                    }
+
+                    LazyColumn(modifier = Modifier.fillMaxSize(), state = listState) {
+                        items(items = lottoState.lottoPrizeList) {
                             LottoPrizeItem(lottoPrize = it)
                         }
+                        if (lottoState.hasNextLottoPrizeList)
+                            item {
+                                Box(modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(20.dp), contentAlignment = Alignment.Center) {
+                                    CircularProgressIndicator(modifier = Modifier.size(40.dp))
+                                }
+                            }
                     }
                 }
             }
