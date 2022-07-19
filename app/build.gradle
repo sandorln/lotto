@@ -17,6 +17,8 @@ android {
         vectorDrawables {
             useSupportLibrary true
         }
+
+        buildConfigField "String", "LOTTO_API_URL", "\"https://www.dhlottery.co.kr/\""
     }
 
     buildTypes {
@@ -59,4 +61,17 @@ dependencies {
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
+
+    // Retrofit
+    def retrofit_version = "2.7.2"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
+    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+
+    // Gson
+    def gson_version = '2.9.0'
+    implementation "com.google.code.gson:gson:$gson_version"
+
+    // Coroutine
+    def coroutine_version = "1.6.1"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutine_version"
 }
