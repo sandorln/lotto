@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">lotto</string>
+    <string name="drw_no">%1$s회</string>
+    <string name="first_th">1등</string>
+    <string name="frist_przwner_co">총 %1$s 게임 당첨</string>
+    <string name="first_winamnt">%1$s 원</string>
 </resources>
