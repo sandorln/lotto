@@ -161,7 +161,7 @@ fun PreviewLottoDateText() {
 fun LottoBall(number: Int) {
     Box(
         modifier = Modifier
-            .size(BaseComposableSize.circleNumberSize)
+            .size(LottoItemSize.ballSize)
             .padding(DefaultSize.veryTinySize)
             .background(number.getNumberColor(), CircleShape),
         contentAlignment = Alignment.Center

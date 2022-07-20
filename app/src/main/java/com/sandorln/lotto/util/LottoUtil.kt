@@ -28,12 +28,13 @@ fun Long.getDecimalFormat(): String {
     return decFormat.format(this)
 }
 
-fun Int.getNumberColor(): Color {
-    return when {
+fun Int.getNumberColor(): Color =
+    when {
+        this <= 0 -> BallErrorColor
         this <= 10 -> BallYellowColor
         this <= 20 -> BallBlueColor
         this <= 30 -> BallRedColor
         this <= 40 -> BallGrayColor
-        else -> BallGreenColor
+        this <= 45 -> BallGreenColor
+        else -> BallErrorColor
     }
-}
