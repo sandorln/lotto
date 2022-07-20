@@ -8,7 +8,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
-import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -21,6 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.sandorln.lotto.R
 import com.sandorln.lotto.data.model.LottoPrize
+import com.sandorln.lotto.ui.base.LoadingProgressIndicator
 import com.sandorln.lotto.ui.theme.*
 import com.sandorln.lotto.util.OnBottomReached
 import com.sandorln.lotto.util.getDecimalFormat
@@ -40,7 +40,6 @@ fun HomeScreen(lottoViewModel: LottoViewModel = hiltViewModel()) {
             .collectLatest { lottoState = it }
     }
 
-    // 무한 스크롤
     listState.OnBottomReached {
         lottoViewModel.postEvent(LottoEvent.GetNextLottoPrizeList)
     }
@@ -58,13 +57,7 @@ fun HomeScreen(lottoViewModel: LottoViewModel = hiltViewModel()) {
 
             if (lottoState.hasNextLottoPrizeList)
                 item {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(DefaultSize.largeSize), contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator(modifier = Modifier.size(BaseComposableSize.progressIndicatorSize))
-                    }
+                    LoadingProgressIndicator(Modifier.fillMaxWidth())
                 }
         }
     }
