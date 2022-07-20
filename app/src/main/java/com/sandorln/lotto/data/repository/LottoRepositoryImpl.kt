@@ -21,7 +21,8 @@ class LottoRepositoryImpl @Inject constructor(
         val lastLottoTh = (firstLottoTh - LOTTO_PAGE).coerceAtLeast(1)
         for (i in firstLottoTh downTo lastLottoTh) {
             val result = lottoApiService.getLottoNumber(i)
-            resultList.add(result)
+            if (result.isSuccess)
+                resultList.add(result)
         }
 
         return resultList

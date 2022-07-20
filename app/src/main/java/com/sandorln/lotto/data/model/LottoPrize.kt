@@ -21,5 +21,6 @@ data class LottoPrize(
     val returnValue: String,    // success or fail
     val firstAccumamnt: Long,
 ) {
+    val isSuccess : Boolean get() = returnValue == "success"
     fun getNumberList(): List<Int> = mutableListOf(drwtNo1, drwtNo2, drwtNo3, drwtNo4, drwtNo5, drwtNo6, bnusNo)
 }
