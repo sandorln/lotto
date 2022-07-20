@@ -4,4 +4,7 @@
     <string name="first_th">1등</string>
     <string name="frist_przwner_co">총 %1$s 게임 당첨</string>
     <string name="first_winamnt">%1$s 원</string>
+    <string name="pick_number">고정 번호</string>
+    <string name="pull_number">번호 뽑기</string>
+    <string name="selected_number">" X %1$s"</string>
 </resources>

@@ -8,7 +8,6 @@ import com.sandorln.lotto.util.verifyNumbers
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -60,6 +59,10 @@ data class LottoPullNumberState(
 
 enum class LottoNumberType {
     ONE, TWO, THREE, FOUR, FIVE, SIX, BONUS
+}
+
+enum class SelectNumberType(val number: Int) {
+    ONE(1), HUNDRED(100), THOUSAND(1000)
 }
 
 sealed interface LottoPullNumberEvent {

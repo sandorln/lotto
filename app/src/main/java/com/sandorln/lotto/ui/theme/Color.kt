@@ -12,6 +12,8 @@ val Blue01 = Color(0xFF1363DF)
 val Blue02 = Color(0xFF47B5FF)
 val Blue03 = Color(0xFFDFF6FF)
 
+val SubmitColor = Color(0xFF21B100)
+
 val BallYellowColor = Color(0xFFE2CC00)
 val BallBlueColor = Color(0xFF0077E0)
 val BallRedColor = Color(0xFFE00034)
