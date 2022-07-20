@@ -1,11 +1,13 @@
 package com.sandorln.lotto.ui
 
+import android.os.Build
 import android.os.Bundle
+import android.view.View
+import android.view.WindowInsetsController
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -27,6 +29,8 @@ import com.sandorln.lotto.ui.scene.HomeScreen
 import com.sandorln.lotto.ui.scene.PrizeMapScreen
 import com.sandorln.lotto.ui.scene.PullNumberScreen
 import com.sandorln.lotto.ui.scene.SettingScreen
+import com.sandorln.lotto.ui.theme.Blue00
+import com.sandorln.lotto.ui.theme.Blue01
 import com.sandorln.lotto.ui.theme.LottoTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -34,6 +38,15 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.insetsController?.setSystemBarsAppearance(
+                WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS,
+                WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
+            )
+        } else {
+            @Suppress("DEPRECATION")
+            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+        }
         setContent {
             LottoTheme {
                 NavigationGraph()
@@ -55,7 +68,7 @@ fun NavigationGraph() {
             modifier = Modifier.fillMaxSize(),
             backgroundColor = Color.White,
             bottomBar = {
-                BottomNavigation {
+                BottomNavigation(backgroundColor = Blue00) {
                     val navBackStackEntry by navController.currentBackStackEntryAsState()
                     val currentDestination = navBackStackEntry?.destination
                     bottomNavItems.forEach { item ->
@@ -64,8 +77,8 @@ fun NavigationGraph() {
                             label = { Text(text = item.name) },
                             selected = currentDestination?.hierarchy?.any { it.route == item.route } == true,
                             onClick = { navActions.navigateTo(item.route) },
-                            selectedContentColor = Color.Magenta,
-                            unselectedContentColor = Color.Blue
+                            selectedContentColor = Blue01,
+                            unselectedContentColor = Color.DarkGray
                         )
                     }
                 }
