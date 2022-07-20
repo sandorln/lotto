@@ -10,10 +10,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Card
 import androidx.compose.material.Icon
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,66 +20,92 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.sandorln.lotto.R
 import com.sandorln.lotto.ui.theme.*
 import com.sandorln.lotto.util.getNumberColor
+import com.sandorln.lotto.viewmodel.LottoNumberType
+import com.sandorln.lotto.viewmodel.LottoPullNumberEvent
+import com.sandorln.lotto.viewmodel.LottoPullNumberState
+import com.sandorln.lotto.viewmodel.LottoPullNumberViewModel
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
-fun PullNumberScreen() {
+fun PullNumberScreen(
+    lottoPullNumberViewModel: LottoPullNumberViewModel = hiltViewModel()
+) {
+    var lottoPullNumberState by remember { mutableStateOf(LottoPullNumberState()) }
+    LaunchedEffect(Unit) {
+        lottoPullNumberViewModel
+            .lottoPullNumberState
+            .collectLatest {
+                lottoPullNumberState = it
+            }
+    }
+
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         item {
-            UserPickNumberLayout()
+            UserPickNumberLayout(
+                pullNumberMap = lottoPullNumberState.pullNumberMap,
+                onNumberChange = { type, number ->
+                    lottoPullNumberViewModel.postEvent(LottoPullNumberEvent.ChangeUserPickNumber(type, number))
+                }
+            )
         }
     }
 }
 
 @Composable
-fun UserPickNumberLayout() {
+fun UserPickNumberLayout(pullNumberMap: Map<LottoNumberType, Int?>, onNumberChange: (LottoNumberType, Int?) -> Unit) {
     Card(
-        modifier = Modifier,
         shape = RoundedCornerShape(DefaultSize.smallSize),
-        backgroundColor = Blue03
+        backgroundColor = Blue03,
     ) {
-        UserPickBallList()
+        UserPickBallList(pullNumberMap, onNumberChange)
     }
 }
 
 @Composable
-fun UserPickBallList() {
-    val (num, onChangeNum) = remember { mutableStateOf("") }
-    Row {
-        UserPickBall(number = num, onNumberChange = onChangeNum)
+fun UserPickBallList(pullNumberMap: Map<LottoNumberType, Int?>, onNumberChange: (LottoNumberType, Int?) -> Unit) {
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+        LottoNumberType.values().forEach { type ->
+            UserPickBall(number = pullNumberMap[type], onNumberChange = {
+                onNumberChange(type, it)
+            })
+        }
     }
 }
 
 @Composable
-fun UserPickBall(number: String, onNumberChange: (String) -> Unit) {
-    val numberToInt = number.toIntOrNull() ?: -1
+fun UserPickBall(number: Int?, onNumberChange: (Int?) -> Unit) {
     val focusManager = LocalFocusManager.current
     Box(
         modifier = Modifier
             .size(LottoItemSize.userPickBallSize)
             .padding(DefaultSize.veryTinySize)
-            .background(numberToInt.getNumberColor(), CircleShape),
+            .background((number ?: 0).getNumberColor(), CircleShape),
         contentAlignment = Alignment.Center
     ) {
         BasicTextField(
-            value = number,
-            onValueChange = { userNumber ->
-                if (userNumber.length < 3)
-                    onNumberChange(userNumber)
-                else
-                    onNumberChange(userNumber.substring(0, 2))
+            value = number?.toString() ?: "",
+            onValueChange = { userNumberString ->
+                try {
+                    val userNumber = userNumberString.toInt()
+                    if (userNumber in 1..45)
+                        onNumberChange(userNumber)
+                    else
+                        onNumberChange(null)
+                } catch (e: Exception) {
+                    onNumberChange(null)
+                }
             },
             textStyle = TextStyles.lottoItemLarge.copy(textAlign = TextAlign.Center, color = Color.White),
             maxLines = 1,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(onDone = {
-                focusManager.clearFocus()
-            }),
+            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
         )
 
-        if (number.isEmpty())
+        if (number == null)
             Icon(
                 modifier = Modifier.size(DefaultSize.largeSize),
                 painter = painterResource(id = R.drawable.ic_edit),
@@ -96,6 +119,6 @@ fun UserPickBall(number: String, onNumberChange: (String) -> Unit) {
 @Preview(showBackground = true)
 fun PreviewUserPickNumberBall() {
     LottoTheme {
-        UserPickBall(number = "") {}
+        UserPickBall(number = null) {}
     }
 }
