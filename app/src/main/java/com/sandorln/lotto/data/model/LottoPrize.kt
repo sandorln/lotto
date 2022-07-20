@@ -1,5 +1,7 @@
 package com.sandorln.lotto.data.model
 
+import androidx.compose.ui.graphics.Color
+
 data class LottoPrize(
     // 로또 번호
     val drwNo: Int,
@@ -18,4 +20,6 @@ data class LottoPrize(
     val drwNoDate: String,      // 날짜
     val returnValue: String,    // success or fail
     val firstAccumamnt: Long,
-)
+) {
+    fun getNumberList(): List<Int> = mutableListOf(drwtNo1, drwtNo2, drwtNo3, drwtNo4, drwtNo5, drwtNo6, bnusNo)
+}

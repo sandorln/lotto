@@ -1,5 +1,8 @@
 package com.sandorln.lotto.util
 
+import androidx.compose.ui.graphics.Color
+import com.sandorln.lotto.ui.theme.*
+import java.text.DecimalFormat
 import java.util.*
 
 const val FIRST_LOTTO_YEAR = 2002
@@ -18,4 +21,19 @@ fun latestLottoTh(): Int {
     val lottoTh = resultDay / WEEK_DAY + if (resultDay % WEEK_DAY > 0) 1 else 0
 
     return lottoTh.toInt()
+}
+
+fun Long.getDecimalFormat(): String {
+    val decFormat = DecimalFormat("#,###")
+    return decFormat.format(this)
+}
+
+fun Int.getNumberColor(): Color {
+    return when {
+        this <= 10 -> BallYellowColor
+        this <= 20 -> BallBlueColor
+        this <= 30 -> BallRedColor
+        this <= 40 -> BallGrayColor
+        else -> BallGreenColor
+    }
 }
