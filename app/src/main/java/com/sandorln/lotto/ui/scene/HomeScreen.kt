@@ -44,22 +44,20 @@ fun HomeScreen(lottoViewModel: LottoViewModel = hiltViewModel()) {
         lottoViewModel.postEvent(LottoEvent.GetNextLottoPrizeList)
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            state = listState,
-            verticalArrangement = Arrangement.spacedBy(DefaultSize.normalSize),
-            contentPadding = PaddingValues(horizontal = DefaultSize.largeSize, vertical = DefaultSize.normalSize)
-        ) {
-            items(items = lottoState.lottoPrizeList, key = { it.drwNo }) {
-                LottoPrizeItem(lottoPrize = it)
-            }
-
-            if (lottoState.hasNextLottoPrizeList)
-                item {
-                    LoadingProgressIndicator(Modifier.fillMaxWidth())
-                }
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        state = listState,
+        verticalArrangement = Arrangement.spacedBy(DefaultSize.normalSize),
+        contentPadding = PaddingValues(horizontal = DefaultSize.largeSize, vertical = DefaultSize.normalSize)
+    ) {
+        items(items = lottoState.lottoPrizeList, key = { it.drwNo }) {
+            LottoPrizeItem(lottoPrize = it)
         }
+
+        if (lottoState.hasNextLottoPrizeList)
+            item {
+                LoadingProgressIndicator(Modifier.fillMaxWidth())
+            }
     }
 }
 

@@ -40,7 +40,7 @@ fun Int.getNumberColor(): Color =
         else -> BallErrorColor
     }
 
-fun Map<LottoNumberType, Int>.verifyNumbers(): Boolean = try {
+fun Map<LottoNumberType, Int>.isNotOverlapNumbers(): Boolean = try {
     forEach { entry ->
         if (count { entry.value == it.value } > 1)
             return false
@@ -49,3 +49,4 @@ fun Map<LottoNumberType, Int>.verifyNumbers(): Boolean = try {
 } catch (e: Exception) {
     false
 }
+

@@ -5,6 +5,7 @@ import androidx.compose.ui.unit.dp
 
 
 object DefaultSize {
+    val oneSize = 1.dp
     val veryTinySize = 2.5.dp
     val tinySize = 5.dp
     val smallSize = 10.dp

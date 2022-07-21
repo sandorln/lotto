@@ -3,6 +3,7 @@ package com.sandorln.lotto.ui.scene
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -33,6 +34,7 @@ fun PullNumberScreen(
     lottoPullNumberViewModel: LottoPullNumberViewModel = hiltViewModel()
 ) {
     var lottoPullNumberState by remember { mutableStateOf(LottoPullNumberState()) }
+    val focusManager = LocalFocusManager.current
     LaunchedEffect(Unit) {
         lottoPullNumberViewModel
             .lottoPullNumberState
@@ -41,25 +43,45 @@ fun PullNumberScreen(
             }
     }
 
-    LazyColumn(modifier = Modifier.fillMaxSize()) {
+    LazyColumn(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(DefaultSize.smallSize)) {
         item {
             UserPickNumberLayout(
                 pullNumberMap = lottoPullNumberState.pullNumberMap,
-                onNumberChange = { type, number ->
-                    lottoPullNumberViewModel.postEvent(LottoPullNumberEvent.ChangeUserPickNumber(type, number))
+                onNumberChange = { type, number -> lottoPullNumberViewModel.postEvent(LottoPullNumberEvent.ChangeUserPickNumber(type, number)) },
+                selectNumberType = lottoPullNumberState.selectNumberType,
+                onSelectNumberType = { lottoPullNumberViewModel.postEvent(LottoPullNumberEvent.ChangeSelectNumber(it)) },
+                pullNumberEnable = lottoPullNumberState.isNotOverlapNumbers,
+                onPullNumberAction = {
+                    focusManager.clearFocus()
+                    lottoPullNumberViewModel.postEvent(LottoPullNumberEvent.PullRandomLotto)
                 }
             )
         }
+
+        if (lottoPullNumberState.randomLottos.isNotEmpty())
+            items(items = lottoPullNumberState.randomLottos) { item ->
+                RandomLottoBallList(
+                    pickNumberTypeList = lottoPullNumberState.pickNumberTypeList,
+                    randomNumberList = item
+                )
+            }
     }
 }
 
 @Composable
-fun UserPickNumberLayout(pullNumberMap: Map<LottoNumberType, Int?>, onNumberChange: (LottoNumberType, Int?) -> Unit) {
+fun UserPickNumberLayout(
+    pullNumberMap: Map<LottoNumberType, Int?>,
+    selectNumberType: SelectNumberType = SelectNumberType.ONE,
+    onSelectNumberType: (SelectNumberType) -> Unit,
+    onNumberChange: (LottoNumberType, Int?) -> Unit,
+    pullNumberEnable: Boolean = false,
+    onPullNumberAction: () -> Unit
+) {
     Card(
-        modifier = Modifier.padding(DefaultSize.smallSize),
-        shape = RoundedCornerShape(DefaultSize.normalSize),
+        modifier = Modifier.padding(horizontal = DefaultSize.largeSize, vertical = DefaultSize.normalSize),
+        shape = RoundedCornerShape(DefaultSize.largeSize),
         backgroundColor = Blue03,
-        elevation = DefaultSize.smallSize
+        elevation = DefaultSize.tinySize
     ) {
         Column(
             modifier = Modifier
@@ -71,7 +93,12 @@ fun UserPickNumberLayout(pullNumberMap: Map<LottoNumberType, Int?>, onNumberChan
             Spacer(modifier = Modifier.height(DefaultSize.tinySize))
             UserPickBallList(pullNumberMap, onNumberChange)
             Spacer(modifier = Modifier.height(DefaultSize.tinySize))
-            PullNumberLayout()
+            PullNumberLayout(
+                selectNumberType = selectNumberType,
+                onSelectNumberType = onSelectNumberType,
+                pullNumberEnable = pullNumberEnable,
+                onPullNumberAction = onPullNumberAction
+            )
         }
     }
 }
@@ -136,23 +163,36 @@ fun UserPickBall(modifier: Modifier = Modifier, number: Int?, onNumberChange: (I
 }
 
 @Composable
-fun PullNumberLayout() {
+fun PullNumberLayout(
+    selectNumberType: SelectNumberType = SelectNumberType.ONE,
+    onSelectNumberType: (SelectNumberType) -> Unit,
+    pullNumberEnable: Boolean = false,
+    onPullNumberAction: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .height(IntrinsicSize.Min)
     ) {
-        SelectNumbers(modifier = Modifier
-            .weight(1f)
-            .fillMaxHeight(), selectNumber = SelectNumberType.ONE, onChangeSelectNumber = {})
-        PullNumberButton {
-
-        }
+        SelectNumbers(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight(),
+            selectNumber = selectNumberType,
+            onSelectNumberType = onSelectNumberType
+        )
+        PullNumberButton(
+            enable = pullNumberEnable,
+            onClickAction = onPullNumberAction
+        )
     }
 }
 
 @Composable
-fun PullNumberButton(enable: Boolean = false, onClickAction: () -> Unit) {
+fun PullNumberButton(
+    enable: Boolean = false,
+    onClickAction: () -> Unit
+) {
     TextButton(
         onClick = onClickAction,
         enabled = enable,
@@ -169,13 +209,15 @@ fun PullNumberButton(enable: Boolean = false, onClickAction: () -> Unit) {
 fun SelectNumbers(
     modifier: Modifier = Modifier,
     selectNumber: SelectNumberType,
-    onChangeSelectNumber: (SelectNumberType) -> Unit
+    onSelectNumberType: (SelectNumberType) -> Unit,
 ) {
     Row(modifier = modifier) {
-        SelectNumberType.values().forEach { selected ->
-            val color = if (selectNumber == selected) Color.White else Color.LightGray
-            val bgColor = if (selectNumber == selected) Blue01 else Color.Unspecified
-            TextButton(modifier = Modifier.weight(1f), onClick = { }) {
+        SelectNumberType.values().forEach { selectedType ->
+            val color = if (selectNumber == selectedType) Color.White else Color.LightGray
+            val bgColor = if (selectNumber == selectedType) Blue01 else Color.Unspecified
+            TextButton(modifier = Modifier.weight(1f), onClick = {
+                onSelectNumberType(selectedType)
+            }) {
                 Row(
                     modifier = Modifier
                         .background(bgColor, CircleShape)
@@ -189,19 +231,92 @@ fun SelectNumbers(
                         contentDescription = ""
                     )
                     Spacer(modifier = Modifier.width(DefaultSize.tinySize))
-                    Text(text = selected.number.toString(), color = color, style = TextStyles.lottoItemNormal.copy(fontWeight = FontWeight.Bold))
+                    Text(text = selectedType.number.toString(), color = color, style = TextStyles.lottoItemNormal.copy(fontWeight = FontWeight.Bold))
                 }
             }
         }
     }
 }
 
+@Composable
+fun RandomLottoBall(
+    modifier: Modifier = Modifier,
+    number: Int,
+    isUserPickNumber: Boolean = true
+) {
+    Box(
+        modifier = modifier
+            .aspectRatio(1f)
+            .padding(DefaultSize.veryTinySize)
+            .background(number.getNumberColor(), CircleShape),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(text = number.toString(), style = TextStyles.lottoItemLarge.copy(textAlign = TextAlign.Center, color = Color.White))
+
+        if (isUserPickNumber)
+            Icon(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .size(DefaultSize.normalSize),
+                painter = painterResource(id = R.drawable.ic_pin),
+                tint = Color.White,
+                contentDescription = "",
+            )
+    }
+}
+
+@Composable
+fun RandomLottoBallList(
+    pickNumberTypeList: List<LottoNumberType>,
+    randomNumberList: Map<LottoNumberType, Int>
+) {
+    Card(
+        Modifier.padding(horizontal = DefaultSize.largeSize),
+        shape = RoundedCornerShape(DefaultSize.largeSize),
+        elevation = DefaultSize.tinySize,
+        backgroundColor = Color.White
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(DefaultSize.smallSize),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            LottoNumberType.values().forEach {
+                if (it == LottoNumberType.BONUS)
+                    Text(text = "+")
+
+                RandomLottoBall(
+                    modifier = Modifier.weight(1f),
+                    number = randomNumberList[it] ?: 0,
+                    isUserPickNumber = pickNumberTypeList.contains(it)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+@Preview(showBackground = true)
+fun PreviewRandomLottoBall() {
+    LottoTheme {
+        Row(Modifier.fillMaxWidth()) {
+            LottoNumberType.values().forEachIndexed { index, type ->
+                RandomLottoBall(
+                    modifier = Modifier.weight(1f),
+                    number = type.ordinal,
+                    isUserPickNumber = index % 2 == 0
+                )
+            }
+        }
+    }
+}
 
 @Composable
 @Preview(showBackground = true)
 fun PreviewUserPickNumberBall() {
     LottoTheme {
-        PullNumberLayout()
+        PullNumberLayout(onSelectNumberType = {}, onPullNumberAction = {})
 //        UserPickBall(number = null) {}
     }
 }
@@ -218,8 +333,11 @@ fun PreviewPullNumberButton() {
 @Preview(showBackground = true)
 fun PreviewUserPickNumberLayout() {
     LottoTheme {
-        UserPickNumberLayout(mutableMapOf()) { type, number ->
-
-        }
+        UserPickNumberLayout(
+            pullNumberMap = mutableMapOf(),
+            selectNumberType = SelectNumberType.ONE,
+            onSelectNumberType = {},
+            onPullNumberAction = {},
+            onNumberChange = { _, _ -> })
     }
 }

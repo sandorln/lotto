@@ -4,7 +4,7 @@ import android.app.Application
 import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.sandorln.lotto.util.verifyNumbers
+import com.sandorln.lotto.util.isNotOverlapNumbers
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.random.Random
 
 @HiltViewModel
 class LottoPullNumberViewModel @Inject constructor(
@@ -33,28 +34,84 @@ class LottoPullNumberViewModel @Inject constructor(
             launch(Dispatchers.IO) {
                 _lottoPullNumberEvent
                     .collect { event ->
-                        when (event) {
+                        val copy = when (event) {
                             is LottoPullNumberEvent.ChangeUserPickNumber -> {
                                 val tempMap = _lottoPullNumberState.value.pullNumberMap.toMutableMap()
                                 if (event.number != null)
                                     tempMap[event.type] = event.number
                                 else
                                     tempMap.remove(event.type)
-                                val copy = _lottoPullNumberState.value.copy(isLoading = false, pullNumberMap = tempMap)
-                                _lottoPullNumberState.emit(copy)
+                                _lottoPullNumberState.value.copy(pullNumberMap = tempMap)
+                            }
+                            is LottoPullNumberEvent.ChangeSelectNumber -> {
+                                if (event.type == _lottoPullNumberState.value.selectNumberType)
+                                    return@collect
+                                _lottoPullNumberState.value.copy(selectNumberType = event.type)
+                            }
+
+                            LottoPullNumberEvent.PullRandomLotto -> {
+                                val pickNumberTypeList = _lottoPullNumberState.value.pullNumberMap.keys.toList()
+                                _lottoPullNumberState.value.copy(
+                                    randomLottos = getRandomNumbers(),
+                                    pickNumberTypeList = pickNumberTypeList
+                                )
                             }
                         }
+                        _lottoPullNumberState.emit(copy)
                     }
             }
         }
+    }
+
+    private fun getRandomNumbers(): List<Map<LottoNumberType, Int>> {
+        val random = Random(System.currentTimeMillis())
+        val randomLottos = mutableListOf<Map<LottoNumberType, Int>>()
+
+        val initRandomLottoMap = mutableMapOf<LottoNumberType, Int?>().apply {
+            LottoNumberType.values().forEach { put(it, null) }
+            putAll(_lottoPullNumberState.value.pullNumberMap.toMap())
+        }
+
+        val maxCount = _lottoPullNumberState.value.selectNumberType.number
+
+        for (count in 0 until maxCount) {
+            val randomLottoMap = initRandomLottoMap.toMutableMap()
+
+            while (randomLottoMap.values.any { it == null }) {
+                var randomValue: Int
+
+                while (true) {
+                    randomValue = random.nextInt(1, 46)
+                    if (randomLottoMap.none { it == random })
+                        break
+                }
+
+                for (entry in randomLottoMap) {
+                    if (entry.value == null) {
+                        randomLottoMap[entry.key] = randomValue
+                        break
+                    }
+                }
+            }
+
+            val notNullRandomLottoMap = mutableMapOf<LottoNumberType, Int>().apply { randomLottoMap.forEach { put(key = it.key, it.value ?: 0) } }
+            randomLottos.add(notNullRandomLottoMap)
+        }
+
+        return randomLottos
     }
 }
 
 data class LottoPullNumberState(
     val isLoading: Boolean = false,
-    val pullNumberMap: MutableMap<LottoNumberType, Int> = mutableMapOf()
+
+    val pullNumberMap: MutableMap<LottoNumberType, Int> = mutableMapOf(),
+    val selectNumberType: SelectNumberType = SelectNumberType.ONE,
+
+    val randomLottos: List<Map<LottoNumberType, Int>> = mutableListOf(),
+    val pickNumberTypeList: List<LottoNumberType> = mutableListOf()
 ) {
-    val verifyNumbers: Boolean get() = pullNumberMap.verifyNumbers()
+    val isNotOverlapNumbers: Boolean get() = pullNumberMap.isNotOverlapNumbers()
 }
 
 enum class LottoNumberType {
@@ -67,4 +124,6 @@ enum class SelectNumberType(val number: Int) {
 
 sealed interface LottoPullNumberEvent {
     data class ChangeUserPickNumber(val type: LottoNumberType, val number: Int?) : LottoPullNumberEvent
+    data class ChangeSelectNumber(val type: SelectNumberType) : LottoPullNumberEvent
+    object PullRandomLotto : LottoPullNumberEvent
 }
