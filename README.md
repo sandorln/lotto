@@ -9,5 +9,5 @@
 - Min SDK 21
 
 ## 스크린 샷
-<img src="https://user-images.githubusercontent.com/25873584/180733093-90f764ca-b85d-4e8c-abd6-241f3a67124d.png" width="200" height="335">
+<img src="https://user-images.githubusercontent.com/25873584/180733093-90f764ca-b85d-4e8c-abd6-241f3a67124d.png">
 <img src="https://user-images.githubusercontent.com/25873584/180733089-7ed366a8-daed-43c8-8abb-e6a742c459e6.png" width="200" height="335"><img src="https://user-images.githubusercontent.com/25873584/180733075-cf53a08a-a846-4174-b8f8-35209309c6c1.png" width="200" height="335">
