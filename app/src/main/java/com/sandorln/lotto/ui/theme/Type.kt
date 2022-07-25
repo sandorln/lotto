@@ -17,6 +17,10 @@ val Typography = Typography(
 )
 
 object TextStyles {
+    val lottoItemTiny = TextStyle(
+        fontWeight = FontWeight.Normal,
+        fontSize = 7.sp,
+    )
     val lottoItemSmall = TextStyle(
         fontWeight = FontWeight.Normal,
         fontSize = 10.sp,

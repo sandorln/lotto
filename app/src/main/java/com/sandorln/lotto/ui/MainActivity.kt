@@ -9,10 +9,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -24,6 +21,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.sandorln.lotto.R
 import com.sandorln.lotto.ui.scene.HomeScreen
 import com.sandorln.lotto.ui.scene.PrizeMapScreen
@@ -38,15 +36,6 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            window.insetsController?.setSystemBarsAppearance(
-                WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS,
-                WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
-            )
-        } else {
-            @Suppress("DEPRECATION")
-            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
-        }
         setContent {
             LottoTheme {
                 NavigationGraph()
@@ -109,8 +98,8 @@ fun NavigationGraph() {
 private val bottomNavItems = mutableListOf<BottomNavItem>().apply {
     add(BottomNavItem(name = "홈", route = NavDestination.HOME_SCREEN, iconId = R.drawable.ic_home))
     add(BottomNavItem(name = "뽑기", route = NavDestination.PULL_NUMBER_SCREEN, iconId = R.drawable.ic_number))
-    add(BottomNavItem(name = "당첨지도", route = NavDestination.PRIZE_MAP_SCREEN, iconId = R.drawable.ic_map))
-    add(BottomNavItem(name = "설정", route = NavDestination.SETTING_SCREEN, iconId = R.drawable.ic_settings))
+//    add(BottomNavItem(name = "당첨지도", route = NavDestination.PRIZE_MAP_SCREEN, iconId = R.drawable.ic_map))
+//    add(BottomNavItem(name = "설정", route = NavDestination.SETTING_SCREEN, iconId = R.drawable.ic_settings))
 }
 
 data class BottomNavItem(

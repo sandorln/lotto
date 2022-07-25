@@ -2,6 +2,7 @@ package com.sandorln.lotto.util
 
 import androidx.compose.ui.graphics.Color
 import com.sandorln.lotto.ui.theme.*
+import com.sandorln.lotto.viewmodel.LottoNumberType
 import java.text.DecimalFormat
 import java.util.*
 
@@ -28,12 +29,24 @@ fun Long.getDecimalFormat(): String {
     return decFormat.format(this)
 }
 
-fun Int.getNumberColor(): Color {
-    return when {
+fun Int.getNumberColor(): Color =
+    when {
+        this <= 0 -> BallErrorColor
         this <= 10 -> BallYellowColor
         this <= 20 -> BallBlueColor
         this <= 30 -> BallRedColor
         this <= 40 -> BallGrayColor
-        else -> BallGreenColor
+        this <= 45 -> BallGreenColor
+        else -> BallErrorColor
     }
+
+fun Map<LottoNumberType, Int>.isNotOverlapNumbers(): Boolean = try {
+    forEach { entry ->
+        if (count { entry.value == it.value } > 1)
+            return false
+    }
+    true
+} catch (e: Exception) {
+    false
 }
+
