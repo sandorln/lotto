@@ -19,7 +19,7 @@ fun latestLottoTh(): Int {
 
     val diffSec = (nowCalendar.timeInMillis - firstLottoCalendar.timeInMillis) / 1000
     val resultDay = diffSec / DAY
-    val lottoTh = resultDay / WEEK_DAY + if (resultDay % WEEK_DAY > 0) 1 else 0
+    val lottoTh = resultDay / WEEK_DAY + 1
 
     return lottoTh.toInt()
 }

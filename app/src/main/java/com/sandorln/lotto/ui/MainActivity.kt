@@ -29,6 +29,7 @@ import com.sandorln.lotto.ui.scene.PullNumberScreen
 import com.sandorln.lotto.ui.scene.SettingScreen
 import com.sandorln.lotto.ui.theme.Blue00
 import com.sandorln.lotto.ui.theme.Blue01
+import com.sandorln.lotto.ui.theme.Blue02
 import com.sandorln.lotto.ui.theme.LottoTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -66,7 +67,7 @@ fun NavigationGraph() {
                             label = { Text(text = item.name) },
                             selected = currentDestination?.hierarchy?.any { it.route == item.route } == true,
                             onClick = { navActions.navigateTo(item.route) },
-                            selectedContentColor = Blue01,
+                            selectedContentColor = Blue02,
                             unselectedContentColor = Color.DarkGray
                         )
                     }
