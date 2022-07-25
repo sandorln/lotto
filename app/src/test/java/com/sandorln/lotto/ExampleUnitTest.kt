@@ -91,7 +91,6 @@ class ExampleUnitTest {
         val randomLottos = mutableListOf<Map<LottoNumberType, Int>>()
         val initRandomLottoMap = mutableMapOf<LottoNumberType, Int?>().apply {
             LottoNumberType.values().forEach { put(it, null) }
-            putAll(selectRandomLottoMap)
         }
 
         val random = Random(System.currentTimeMillis())
@@ -103,11 +102,11 @@ class ExampleUnitTest {
 
                 while (true) {
                     randomValue = random.nextInt(1, 46)
-                    if (randomLottoMap.none { it == random })
+                    if (randomLottoMap.values.none { it == randomValue })
                         break
                 }
 
-                for (entry in randomLottoMap){
+                for (entry in randomLottoMap) {
                     if (entry.value == null) {
                         randomLottoMap[entry.key] = randomValue
                         break

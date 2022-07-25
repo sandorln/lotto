@@ -82,7 +82,7 @@ class LottoPullNumberViewModel @Inject constructor(
 
                 while (true) {
                     randomValue = random.nextInt(1, 46)
-                    if (randomLottoMap.none { it == random })
+                    if (randomLottoMap.values.none { it == randomValue })
                         break
                 }
 

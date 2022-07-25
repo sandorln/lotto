@@ -231,7 +231,7 @@ fun SelectNumbers(
                         contentDescription = ""
                     )
                     Spacer(modifier = Modifier.width(DefaultSize.tinySize))
-                    Text(text = selectedType.number.toString(), color = color, style = TextStyles.lottoItemNormal.copy(fontWeight = FontWeight.Bold))
+                    Text(text = selectedType.number.toString(), color = color, style = TextStyles.lottoItemSmall.copy(fontWeight = FontWeight.Bold))
                 }
             }
         }
