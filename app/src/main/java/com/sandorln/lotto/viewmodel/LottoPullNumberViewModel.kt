@@ -119,7 +119,7 @@ enum class LottoNumberType {
 }
 
 enum class SelectNumberType(val number: Int) {
-    ONE(1), HUNDRED(100), THOUSAND(1000)
+    ONE(1), FIVE(5), HUNDRED(100), THOUSAND(1000)
 }
 
 sealed interface LottoPullNumberEvent {

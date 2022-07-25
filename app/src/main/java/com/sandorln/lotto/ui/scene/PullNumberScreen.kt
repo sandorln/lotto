@@ -219,9 +219,7 @@ fun SelectNumbers(
                 onSelectNumberType(selectedType)
             }) {
                 Row(
-                    modifier = Modifier
-                        .background(bgColor, CircleShape)
-                        .padding(horizontal = DefaultSize.tinySize),
+                    modifier = Modifier.background(bgColor, CircleShape).padding(horizontal = DefaultSize.veryTinySize),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
@@ -230,7 +228,6 @@ fun SelectNumbers(
                         tint = color,
                         contentDescription = ""
                     )
-                    Spacer(modifier = Modifier.width(DefaultSize.tinySize))
                     Text(text = selectedType.number.toString(), color = color, style = TextStyles.lottoItemSmall.copy(fontWeight = FontWeight.Bold))
                 }
             }
